@@ -202,7 +202,7 @@ graph LR
                 each["task_name"])
         if len(each["dependencies"]) > 0:
             for dep in each["dependencies"]:
-                if len(each["condition"]) == 0:
+                if "condition" not in each or len(each["condition"]) == 0:
                     body += template2.format(dep, dep+":"+task_map[dep]["op_name"],
                                              each["task_name"], each["task_name"]+":"+each["op_name"])
                 else:
