@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>TaskFlow Demo</title>
+</head>
+
+<body>
+  <h2>已经定义的算子</h2>
+  <table border="1px" width="60%">
+    <tr>
+      <th>算子名</th>
+      <th>算子描述</th>
+      <th>算子输入</th>
+      <th>算子输出</th>
+      <th>使用外部输入</th>
+      <th>输出结果</th>
+    </tr>
+    {% for i in ops %}
+    <tr>
+      <td>{{ i.name }}</td>
+      <td>{{ i.desc }}</td>
+      <td style="text-align: center;">{{ i.inputs }}</td>
+      <td style="text-align: center;">{{ i.output }}</td>
+      <td style="text-align: center;">{{ i.use_global_input }}</td>
+      <td style="text-align: center;">{{ i.use_global_output }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <h2>新增算子</h2>
+  <form action="/op" method="post">
+    {% csrf_token %}
+    <table border="1px" width="40%">
+      <tr>
+        <th scope="row">算子名</th>
+        <td><input type="text" name="op_name" required></td>
+      </tr>
+      <tr>
+        <th scope="row">算子描述</th>
+        <td><input type="text" name="op_desc" required></td>
+      </tr>
+      <tr>
+        <th scope="row">算子输入</th>
+        <td><input type="text" name="op_input"></td>
+      </tr>
+      <tr>
+        <th scope="row">算子输出</th>
+        <td><input type="text" name="op_output" required></td>
+      </tr>
+      <tr>
+        <th scope="row">是否依赖全局输入</th>
+        <td>
+          <input type="checkbox" value="yes" name="global_input">是</input>
+          <input type="checkbox" value="no" name="global_input">否</input>
+        </td>
+      </tr>
+      <tr>
+        <th scope="row">是否产出最终结果</th>
+        <td>
+          <input type="checkbox" value="yes" name="global_output">是</input>
+          <input type="checkbox" value="no" name="global_output">否</input>
+        </td>
+      </tr>
+      <tr>
+        <th scope="row"></th>
+        <td><input type="submit" value="提交"></td>
+      </tr>
+    </table>
+  </form>
+
+  <h2>生成桩代码</h2>
+  <pre class="prettyprint lang-cpp">{{ json }}</pre>
+  <br />
+  <form action="/clear_op" method="post">
+    {% csrf_token %}
+    <input type="submit" value="清空已有算子">
+  </form>
+  <br />
+  <a href="/task">去构建任务流</a>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@9/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true });
+  </script>
+  <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+
+
+</body>
+<style>
+  pre {
+    outline: 1px solid #ccc;
+    padding: 5px;
+    margin: 5px;
+  }
+
+  p {
+    outline: 1px solid #ccc;
+    padding: 5px;
+    margin: 5px;
+  }
+
+  .string {
+    color: green;
+  }
+
+  .number {
+    color: darkorange;
+  }
+
+  .boolean {
+    color: blue;
+  }
+
+  .null {
+    color: magenta;
+  }
+
+  .key {
+    color: red;
+  }
+</style>
+
+</html>
