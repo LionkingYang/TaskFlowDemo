@@ -193,14 +193,25 @@ graph LR
         return template.format("a((NO_TASK))")
     template2 = "{}(({})) --> {}(({}))\n"
     template1 = "{}(({}))\n"
+    template3 = "{}{{{}}} --> {}(({}))\n"
+    template4 = "{}(({})) --> {}{{{}}}\n"
+    i = 0
     for each in tasks["tasks"]:
         if each["async"]:
-            body += "style {} stroke-width:2px,stroke-dasharray: 5, 5\n".format(
+            body += "style {} rhombus stroke-width:2px,stroke-dasharray: 5, 5\n".format(
                 each["task_name"])
         if len(each["dependencies"]) > 0:
             for dep in each["dependencies"]:
-                body += template2.format(dep, dep+":"+task_map[dep]["op_name"],
-                                         each["task_name"], each["task_name"]+":"+each["op_name"])
+                if len(each["condition"]) == 0:
+                    body += template2.format(dep, dep+":"+task_map[dep]["op_name"],
+                                             each["task_name"], each["task_name"]+":"+each["op_name"])
+                else:
+                    body += "{}{{rhombus }}\n".format("condition{}".format(i))
+                    body += template4.format(dep, dep+":"+task_map[dep]["op_name"],
+                                             "condition{}".format(i), each["condition"].split("|")[:-1][0])
+                    body += template3.format("condition{}".format(i), each["condition"].split("|")[:-1][0],
+                                             each["task_name"], each["task_name"]+":"+each["op_name"])
+                    i += 1
         else:
             body += template1.format(each["task_name"],
                                      each["task_name"]+":"+each["op_name"])
@@ -325,6 +336,9 @@ def task(request):
                 else:
                     is_async = False
                 task["async"] = is_async
+                condition = request.POST.get("condition")
+                if len(condition) > 0:
+                    task["condition"] = condition
                 if task_name not in curr_task:
                     curr_task.append(task_name)
                 tasks["tasks"].append(task)
