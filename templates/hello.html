@@ -70,7 +70,22 @@
       </tr>
       <tr>
         <th scope="row">执行条件</th>
-        <td><input type="text" name="condition"></td>
+        <td>
+          <input type="text" name="left">
+
+          <select class="form-control" id="condition_op" name="condition_op">
+            {% for i in condition_op %}
+            <option value="{{ i }}" name="condition_op">{{ i }}</option>
+            {% endfor %}
+          </select>
+          <input type="text" name="right">
+          <select class="form-control" id="condition_type" name="condition_type">
+            {% for i in condition_type %}
+            <option value="{{ i }}" name="op">{{ i }}</option>
+            {% endfor %}
+          </select>
+
+        </td>
       </tr>
       <tr>
         <th scope="row">是否为异步任务</th>

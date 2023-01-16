@@ -2,6 +2,8 @@ from django.http import HttpResponse
 from django.shortcuts import render
 import markdown
 import json
+condition_op = [">=", "<=", ">", "<", "="]
+condition_type = ["int", "string", "double", "float"]
 
 
 def parse_json_tasks(path: str) -> map:
@@ -336,9 +338,13 @@ def task(request):
                 else:
                     is_async = False
                 task["async"] = is_async
-                condition = request.POST.get("condition")
-                if len(condition) > 0:
-                    task["condition"] = condition
+                left = request.POST.get("left")
+                right = request.POST.get("right")
+                condition_op_str = request.POST.get("condition_op")
+                condition_type_str = request.POST.get("condition_type")
+                if len(left) > 0:
+                    task["condition"] = "env:"+left + \
+                        condition_op_str+right+"|"+condition_type_str
                 if task_name not in curr_task:
                     curr_task.append(task_name)
                 tasks["tasks"].append(task)
@@ -353,6 +359,8 @@ def task(request):
 """
     task_map[user_ip] = tasks
     curr_task_map[user_ip] = curr_task
+    context["condition_op"] = condition_op
+    context["condition_type"] = condition_type
     return render(request, 'hello.html', context)
 
 
@@ -374,6 +382,8 @@ def clear(request):
     if user_ip in op_map:
         op = op_map[user_ip]
     context["ops"] = default_ops+op
+    context["condition_op"] = condition_op
+    context["condition_type"] = condition_type
     return render(request, 'hello.html', context)
 
 
