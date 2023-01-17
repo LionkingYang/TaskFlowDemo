@@ -195,8 +195,8 @@ graph LR
         return template.format("a((NO_TASK))")
     template2 = "{}(({})) --> {}(({}))\n"
     template1 = "{}(({}))\n"
-    template3 = "{}{{{}}} --> {}(({}))\n"
-    template4 = "{}(({})) --> {}{{{}}}\n"
+    template3 = '{}{{"{}"}} --> {}(({}))\n'
+    template4 = '{}(({})) --> {}{{"{}"}}\n'
     i = 0
     for each in tasks["tasks"]:
         if each["async"]:
@@ -208,10 +208,14 @@ graph LR
                     body += template2.format(dep, dep+":"+task_map[dep]["op_name"],
                                              each["task_name"], each["task_name"]+":"+each["op_name"])
                 else:
+                    condition = each["condition"]
+                    cons = [each.split("|")[0]
+                            for each in condition.split("&&")]
+                    constr = " and ".join(cons)
                     body += "{}{{rhombus }}\n".format("condition{}".format(i))
                     body += template4.format(dep, dep+":"+task_map[dep]["op_name"],
-                                             "condition{}".format(i), each["condition"].split("|")[:-1][0])
-                    body += template3.format("condition{}".format(i), each["condition"].split("|")[:-1][0],
+                                             "condition{}".format(i), constr[4:])
+                    body += template3.format("condition{}".format(i), constr[4:],
                                              each["task_name"], each["task_name"]+":"+each["op_name"])
                     i += 1
         else:
@@ -338,13 +342,22 @@ def task(request):
                 else:
                     is_async = False
                 task["async"] = is_async
-                left = request.POST.get("left")
-                right = request.POST.get("right")
-                condition_op_str = request.POST.get("condition_op")
-                condition_type_str = request.POST.get("condition_type")
-                if len(left) > 0:
-                    task["condition"] = "env:"+left + \
-                        condition_op_str+right+"|"+condition_type_str
+                condition_all = ""
+                for i in range(3):
+                    left = request.POST.get("left{}".format(i))
+                    right = request.POST.get("right{}".format(i))
+                    condition_op_str = request.POST.get(
+                        "condition_op{}".format(i))
+                    condition_type_str = request.POST.get(
+                        "condition_type{}".format(i))
+                    if len(left) > 0:
+                        if len(condition_all) > 4:
+                            condition_all += "&&"
+                        condition_all += left + \
+                            condition_op_str+right+"|"+condition_type_str
+                if len(condition_all) > 0:
+                    condition_all = "env:" + condition_all
+                task["condition"] = condition_all
                 if task_name not in curr_task:
                     curr_task.append(task_name)
                 tasks["tasks"].append(task)

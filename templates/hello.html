@@ -69,17 +69,53 @@
         <td><input type="text" name="config"></td>
       </tr>
       <tr>
-        <th scope="row">执行条件</th>
+        <th scope="row">执行条件一</th>
         <td>
-          <input type="text" name="left">
+          <input type="text" name="left0">
 
-          <select class="form-control" id="condition_op" name="condition_op">
+          <select class="form-control" id="condition_op0" name="condition_op0">
             {% for i in condition_op %}
             <option value="{{ i }}" name="condition_op">{{ i }}</option>
             {% endfor %}
           </select>
-          <input type="text" name="right">
-          <select class="form-control" id="condition_type" name="condition_type">
+          <input type="text" name="right0">
+          <select class="form-control" id="condition_type0" name="condition_type0">
+            {% for i in condition_type %}
+            <option value="{{ i }}" name="op">{{ i }}</option>
+            {% endfor %}
+          </select>
+      </tr>
+      <tr>
+        <th scope="row">执行条件二</th>
+        </td>
+        <td>
+          <input type="text" name="left1">
+
+          <select class="form-control" id="condition_op1" name="condition_op1">
+            {% for i in condition_op %}
+            <option value="{{ i }}" name="condition_op">{{ i }}</option>
+            {% endfor %}
+          </select>
+          <input type="text" name="right1">
+          <select class="form-control" id="condition_type1" name="condition_type1">
+            {% for i in condition_type %}
+            <option value="{{ i }}" name="op">{{ i }}</option>
+            {% endfor %}
+          </select>
+      </tr>
+      <tr>
+        <th scope="row">执行条件三</th>
+        </td>
+        <td>
+          <input type="text" name="left2">
+
+          <select class="form-control" id="condition_op2" name="condition_op2">
+            {% for i in condition_op %}
+            <option value="{{ i }}" name="condition_op2">{{ i }}</option>
+            {% endfor %}
+          </select>
+          <input type="text" name="right2">
+          <select class="form-control" id="condition_type2" name="condition_type2">
             {% for i in condition_type %}
             <option value="{{ i }}" name="op">{{ i }}</option>
             {% endfor %}
