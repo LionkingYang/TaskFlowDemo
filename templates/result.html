@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>TaskFlow Demo</title>
+</head>
+
+<body>
+  <h2>已经定义的算子</h2>
+  <table border="1px" width="60%">
+    <tr>
+      <th>算子名</th>
+      <th>算子描述</th>
+      <th>算子输入</th>
+      <th>算子输出</th>
+      <th>使用外部输入</th>
+      <th>输出结果</th>
+    </tr>
+    {% for i in ops %}
+    <tr>
+      <td>{{ i.name }}</td>
+      <td>{{ i.desc }}</td>
+      <td style="text-align: center;">{{ i.inputs }}</td>
+      <td style="text-align: center;">{{ i.output }}</td>
+      <td style="text-align: center;">{{ i.use_global_input }}</td>
+      <td style="text-align: center;">{{ i.use_global_output }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  <a href="/op">去定义更多算子</a>
+  <h2>任务图</h2>
+
+  <pre class="mermaid">
+  {{ graph }}
+    </pre>
+  <a href="/task">去构建任务流</a>
+  <form action="/compute" method="post">
+    {% csrf_token %}
+    <table border="1px" width="40%">
+      <tr>
+        <th scope="row">输入</th>
+        <td><input type="text" name="input" required></td>
+      </tr>
+      <tr>
+        <th scope="row"></th>
+        <td><input type="submit" value="提交"></td>
+      </tr>
+    </table>
+  </form>
+
+  <h2>计算结果</h2>
+  <p id="result">
+    {{ result }}
+  </p>
+  <br />
+
+
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@9/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true });
+  </script>
+  <script src="http://libs.baidu.com/jquery/2.0.0/jquery.js"></script>
+  <script>
+    function isEmpty(obj) {
+      if (typeof obj == "undefined" || obj == null || obj == "") {
+        return true;
+      } else {
+        return false;
+      }
+    }
+    function confirmEnding(str, target) {
+      var start = str.length - target.length;
+      var arr = str.substr(start, target.length);
+      if (arr == target) {
+        return true;
+      }
+      return false;
+    }
+
+    function sel(v) {
+      // alert(v);
+      var name = $("#leaderName").val(); // 获取输入框的值
+      // alert(name);
+      // confirmEnding 和 isEmpty 往下看，这是自定义的一个function
+      // 判断是否为空
+      if (!isEmpty(name)) { //不为空则表示已经有值，就要考虑用户是否点击了取消
+        // 判断leaderName里面是否包含了本次复选框的值
+        if (name.indexOf(v) != -1) {
+          // 如果已经包含了本次的传值，则把value和逗号给替换成空格
+          name = name.replace(v + ",", "");
+          name = name.replace(v, "");
+          if (confirmEnding(name, ",")) {// 由于用户取消，最后**可能**会出现以逗号结尾，判断是否以逗号结尾。
+            name = name.substring(0, name.length - 1); // 最后，就是截取了
+          }
+          $("#leaderName").val(name); // 把最新的值传回去
+        } else {
+          // 如果不包含本次的传值，则在后面追加
+          $("#leaderName").val(name + "," + v);
+        }
+      } else { // 如果为空，则表示 leaderName里面没值，就需要新添加一个
+        $("#leaderName").val(v);
+      }
+    }
+
+  </script>
+
+</body>
+<style>
+  pre {
+    outline: 1px solid #ccc;
+    padding: 5px;
+    margin: 5px;
+  }
+
+  p {
+    outline: 1px solid #ccc;
+    padding: 5px;
+    margin: 5px;
+  }
+
+  .string {
+    color: green;
+  }
+
+  .number {
+    color: darkorange;
+  }
+
+  .boolean {
+    color: blue;
+  }
+
+  .null {
+    color: magenta;
+  }
+
+  .key {
+    color: red;
+  }
+
+  p {
+    word-wrap: break-word;
+  }
+</style>
+
+</html>

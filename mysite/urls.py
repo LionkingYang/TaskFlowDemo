@@ -23,5 +23,7 @@ urlpatterns = [
     path(r'op', views.ops),
     path(r'clear_op', views.clear_op),
     path(r'clear', views.clear),
+    path(r'dump_config', views.dump_config),
+    path(r'compute', views.compute),
     re_path(r'^$', views.task),
 ]

@@ -2,8 +2,19 @@ from django.http import HttpResponse
 from django.shortcuts import render
 import markdown
 import json
+import os
 condition_op = [">=", "<=", ">", "<", "="]
 condition_type = ["int", "string", "double", "float"]
+
+
+def execute(num):
+    f = os.popen("/root/project/taskflow/bazel-bin/math_test {}".format(num))
+    line = [each.strip() for each in f.readlines()]
+    res = 0
+    for each in line:
+        if "last res" in each:
+            res = int(each.split(":")[-1])
+    return res
 
 
 def parse_json_tasks(path: str) -> map:
@@ -18,7 +29,6 @@ def parse_json_tasks(path: str) -> map:
 
 
 def build_depedency_map(tasks: map) -> map:
-    print(tasks)
     dep_map = {}
     for task in tasks:
         dep_map[task["task_name"]] = task["dependencies"]
@@ -94,7 +104,7 @@ class OP:
         return template.format(self.name, self.desc, str(self.inputs), self.output)
 
     def to_code(self):
-        template = ''' 
+        template = '''
 BEGIN_OP({}) {{
 {}  RETURN_VAL(your_value);
 }}
@@ -363,7 +373,6 @@ def task(request):
                 tasks["tasks"].append(task)
 
     context["json"] = json.dumps(tasks)
-    print(tasks)
     if "tasks" in tasks:
         context['graph'] = generate_code(tasks)
     else:
@@ -397,6 +406,30 @@ def clear(request):
     context["ops"] = default_ops+op
     context["condition_op"] = condition_op
     context["condition_type"] = condition_type
+    return render(request, 'hello.html', context)
+
+
+def dump_config(request):
+    user_ip = request.META.get("REMOTE_ADDR")
+    tasks = {"tasks": []}
+    cur_tasks = []
+    if user_ip in task_map:
+        tasks = task_map[user_ip]
+    if user_ip in curr_task_map:
+        cur_tasks = curr_task_map[user_ip]
+    ops = []
+    if user_ip in op_map:
+        ops = op_map[user_ip]
+    context = {}
+    context["ops_intro"] = generate_op_markdown(default_ops+ops)
+    context["curr_tasks"] = cur_tasks
+    context['graph'] = generate_code(tasks)
+    context["ops"] = default_ops+ops
+    context["condition_op"] = condition_op
+    context["condition_type"] = condition_type
+    context["json"] = json.dumps(tasks)
+    with open("/root/project/taskflow/example/math_test/data/test_json", "w") as f:
+        f.write(json.dumps(tasks))
     return render(request, 'hello.html', context)
 
 
@@ -447,3 +480,26 @@ def clear_op(request):
     context = {}
     context["ops"] = default_ops
     return render(request, 'op.html', context)
+
+
+def compute(request):
+    user_ip = request.META.get("REMOTE_ADDR")
+    tasks = {"tasks": []}
+    if user_ip in task_map:
+        tasks = task_map[user_ip]
+    with open("/root/project/taskflow/example/math_test/data/test_json", "w") as f:
+        f.write(json.dumps(tasks))
+    res = "输入:"
+    if (request.method == 'POST'):
+        input = request.POST.get("input")
+        res += input
+        res += ", 结果为:" + str(execute(input))
+    op = []
+    if user_ip in op_map:
+        op = op_map[user_ip]
+    context = {}
+    context["ops_intro"] = generate_op_markdown(default_ops+op)
+    context['graph'] = generate_code(tasks)
+    context["ops"] = default_ops+op
+    context["result"] = res
+    return render(request, 'result.html', context)

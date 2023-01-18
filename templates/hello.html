@@ -144,6 +144,15 @@
     {{ json }}
   </p>
   <br />
+
+  <form action="/dump_config" method="post">
+    {% csrf_token %}
+    <input type="submit" value="存储配置">
+  </form>
+  <br />
+  <a href="/compute">去计算任务结果</a>
+  <br />
+  <br />
   <form action="/clear" method="post">
     {% csrf_token %}
     <input type="submit" value="清空已有任务">
